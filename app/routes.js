@@ -1,6 +1,11 @@
 // app/routes.js
 module.exports = function(app, passport) {
 
+	app.get('/demo', function(req,res){
+		res.render('demo.ejs');
+	});
+
+
 	// =====================================
 	// HOME PAGE (with login links) ========
 	// =====================================
