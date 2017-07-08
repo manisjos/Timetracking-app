@@ -1,0 +1,19 @@
+.btn-newcampaign{
+    background-color: #36657C;
+    color: #fff;
+    font-weight: bold;
+    margin-left: 15px;
+}
+
+.status-active{
+    color: #00FF00;
+    margin-right: 10px;
+}
+.status-inactive{
+    color: #FF0000;
+    margin-left: 10px;
+}
+.status-none{
+    color: #808080;
+    cursor: pointer;
+}

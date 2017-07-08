@@ -5,9 +5,9 @@ module.exports = function(app, passport) {
 		res.render('demo.ejs');
 	});
 
-	// app.get('/Apple', function(req,res){
-	// 	res.render('Apple.ejs');
-	// });
+	app.get('/landing', function(req,res){
+		res.render('landing-page.ejs');
+	});
 
 
 	// =====================================

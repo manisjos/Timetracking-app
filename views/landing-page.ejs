@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=10,11">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <title>Mobile Analytics</title>
+        <link rel="stylesheet" href="assets/css/bootstrap.css">
+        <link rel="stylesheet" href="assets/css/landingpage.css">
+        <link rel="stylesheet" href="assets/css/font-awesome.min.css">
+		<!--link rel="icon" type="image/x-icon" href="favicon.ico" /-->
+        <script src="assets/js/jquery.js"></script>
+        <script src="assets/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="assets/css/sweetalert.css">
+		<script src="assets/js/constants.js"></script>
+        <script src="assets/js/sweetalert.min.js"></script>
+        <script src="assets/js/servicecalls.js"></script>
+        <script src="assets/js/timezones.full.min.js"></script>
+       <!--  <script src="assets/js/jquery.carouFredSel.packed.js"></script> -->
+        <!--script src="assets/js/jquery.carouFredSel.packed.js"></script-->
+        <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Montserrat">
+
+        <script>
+            var counter;
+            var arr = [];
+
+            function unameAvailability(uname) {
+                    service.validateUname(uname);
+            }
+
+            function validateEmail() {
+                var sEmail = $('#reg-email').val();
+
+                var filter = /^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,7}|[0-9]{1,3})(\]?)$/;
+                if (filter.test(sEmail)) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+
+            function validateUser() {
+                var uname = $("input.usrname").val();
+                var pwd = $("input.passwrd").val();
+
+                service.validateLogin(uname, pwd);
+            }
+
+            function fadeBack(tabcurrent, tabprev) {
+                if (tabcurrent === 'tab2') {
+                    arr = [];
+                }
+                else {
+                    arr = arr.slice(0,6);
+                }
+                console.log(arr);
+
+                $("#" + tabcurrent).removeClass("in active").fadeOut();
+                $("#" + tabprev).css("display", "block");
+                $("#" + tabprev).addClass("in active").fadeIn();
+
+                if ($(".register-part02").hasClass("active-underline")) {
+                    $(".register-part02").removeClass("active-underline");
+                    $(".register-part01").addClass("active-underline");
+                }
+                else {
+                    $(".register-part03").removeClass("active-underline");
+                    $(".register-part02").addClass("active-underline");
+                }
+            }
+
+            function fadeProceed(tabcurrent, tabnext) {
+                var emptyFlag = 0;
+                if (tabcurrent === 'tab1') {
+                    $("#modalRegister #tab1").find("input").each(function () {
+                        if (this.value == "") {
+                            emptyFlag++;
+                            return false;
+                        }
+                    });
+                }
+                else {
+                    $("#modalRegister #tab2").find("input").each(function () {
+                        if (this.value == "") {
+                            emptyFlag++;
+                            return false;
+                        }
+                    });
+                }
+
+
+                if (emptyFlag > 0) {
+                    swal({ title: "OOPS", text: "Please fill all the details.", imageUrl: "assets/img/Error.png" });
+                }
+                else if (sessionStorage.getItem("unameAvailability") != "Success") {
+                    swal({ title: "OOPS", text: "Username is already taken. Please provide new username.", imageUrl: "assets/img/Error.png" });
+                }
+                else if (!validateEmail()) {
+                    swal({ title: "OOPS", text: "Email id is invalid. Please enter a valid email id.", imageUrl: "assets/img/Error.png" });
+                }
+                else {
+                    if (tabcurrent === 'tab1') {
+                        $("#modalRegister #tab1").find("input").each(function () {
+                                arr.push(this.value);
+                        });
+                    }
+                    else {
+                        $("#modalRegister #tab2").find("input").each(function () {
+                            if ($(this).is('input:text')) {
+                                arr.push(this.value);
+                            }
+                        });
+                        arr.push($(".timezone-select option:selected").val());
+                        $(".tab3-regtext1").html(arr[6]);
+                        $(".tab3-regtext2").html(arr[7]);
+                        $(".tab3-regtext3").html(arr[9]);
+                        $(".tab3-regtext4").html(arr[11]);
+                        $(".tab3-regtext5").html(arr[8]);
+                    }
+                    // Array order - First Name, Email Id, User Name, Last Name, Phone, Password, App Name, App Description, Timeout, App Category, App Icon, Timezone
+
+                    $("#" + tabcurrent).fadeOut().removeClass("in active");
+                    $("#" + tabnext).fadeIn().addClass("in active");
+
+                    if ($(".register-part01").hasClass("active-underline")) {
+                        $(".register-part01").removeClass("active-underline");
+                        $(".register-part02").addClass("active-underline");
+                    }
+                    else {
+                        $(".register-part02").removeClass("active-underline");
+                        $(".register-part03").addClass("active-underline");
+                    }
+                }
+
+            };
+
+            function imageUpload(abc) {
+                $('#reg-appicon').val($(abc).val());
+                $("#appicon-img").attr("src", $(abc).val());
+            }
+
+
+            $(document).ready(function () {
+
+                $('#modalRegister').on('hidden.bs.modal', function (e) {
+                    $("#modalRegister #tab1").addClass("in active").fadeIn();
+                    $("#modalRegister #tab2").removeClass("in active");
+                    $("#modalRegister #tab3").removeClass("in active");
+                    $(".register-part01").addClass("active-underline");
+                    $(".register-part02").removeClass("active-underline");
+                    $(".register-part03").removeClass("active-underline");
+                    $("#uname-check").css("opacity", "0");
+                    sessionStorage.removeItem("unameAvailability");
+                    $("#modalRegister").find("input").each(function () {
+                        $(this).val("");
+                    });
+                });
+				<!-- Function to close Demoplayer modal START -->
+				$("#closebtn").on('click', function (event) {
+
+				jQuery("#modalDemoPlayer iframe").attr("src", jQuery("#modalDemoPlayer iframe").attr("src"));
+				$("#modalDemoPlayer iframe").attr("src", $("#modalDemoPlayer iframe").attr("src"));
+				})
+				<!-- Function to close Demoplayer modal END -->
+
+                $("a").on('click', function (event) {
+
+                    var currLink = $(this);
+                    var refElement = $(currLink.attr("href"));
+                    var abc = refElement.attr("id");
+                    var lastChar = abc[abc.length - 1];
+                    counter = parseInt(lastChar);
+
+                    // Make sure this.hash has a value before overriding default behavior
+                    if (this.hash !== "") {
+                        // Prevent default anchor click behavior
+                        event.preventDefault();
+
+                        // Store hash
+                        var hash = this.hash;
+
+                        // Using jQuery's animate() method to add smooth page scroll
+                        // The optional number (800) specifies the number of milliseconds it takes to scroll to the specified area
+                        $('html, body').animate({
+                            scrollTop: $(hash).offset().top
+                        }, 500, function () {
+
+                            // Add hash (#) to URL when done scrolling (default click behavior)
+                            window.location.hash = hash;
+                        });
+                    } // End if
+
+					if ($("#floating-anchor a").attr("href") == "#section5") {
+					    $("#floating-anchor a").attr("href", "#section1");
+                        $("#floating-anchor a img").attr("src", "assets\\img\\landing\\Arrow_Up.png");
+                    }
+                    else {
+                        counter++;
+                        $("#floating-anchor a").attr("href", "#section" + counter);
+                        $("#floating-anchor a img").attr("src", "assets\\img\\landing\\Arrow_Down.png");
+                    }
+
+                });
+
+                $(".btn-confirm").click(function () {
+                    sessionStorage.removeItem("unameAvailability");
+                    service.registerUser(arr);
+
+                });
+
+            });
+
+        </script>
+    </head>
+    <body class="landing-page">
+        <nav class="navbar navbar-transparent navbar-top" role="navigation">
+            <div class="container">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button id="menu-toggle" type="button" class="navbar-toggle" data-toggle="collapse" data-target="#example">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar bar1"></span>
+                        <span class="icon-bar bar2"></span>
+                        <span class="icon-bar bar3"></span>
+                    </button>
+                    <a href="#">
+                        <div class="logo-container">
+                            <!--div class="logo">
+                                <img class="logo-icon" src="assets/img/landing/H_7.png">
+                                <img class="logo-name" src="assets/img/landing/L3.png">
+                            </div-->
+                        </div>
+                    </a>
+                </div>
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="example">
+                    <ul class="nav navbar-nav navbar-right">
+						<li>
+                            <span class="login" href="#" style="background-color: none;" data-toggle="modal" data-target="#modalDemoPlayer">DEMO</span>
+                        </li>
+						<li class="tilde-filler"><span style="padding-left: 15px; padding-right: 15px;">|</span></li>
+					   <li>
+                            <span class="login" href="#" style="background-color: none;" data-toggle="modal" data-target=".bd-example-modal-sm">
+                                LOGIN
+
+                            </span>
+                        </li>
+                        <li class="tilde-filler"><span style="padding-left: 15px; padding-right: 15px;">|</span></li>
+                        <li>
+                            <span class="login" href="#" style="background-color: none;" data-toggle="modal" data-target="#modalRegister">REGISTER</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- /.navbar-collapse -->
+            </div>
+        </nav>
+
+        <div class="wrapper">
+
+          <div id="carousel-example-generic" class="carousel slide" data-ride="carousel" data-interval="10000">
+				  <!-- Indicators -->
+				  <ol class="carousel-indicators">
+					<li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+					<li data-target="#carousel-example-generic" data-slide-to="1"></li>
+                    <li data-target="#carousel-example-generic" data-slide-to="2"></li>
+				  </ol>
+
+			  <!-- Wrapper for slides -->
+			  <div class="carousel-inner">
+
+					<div class="item active">
+					  <img src="assets/img/landing/H_14.jpg" alt="...">
+					  <div class="carousel-caption">
+						<!--h3>Caption Text</h3-->
+					  </div>
+					</div>
+					<div class="item">
+					  <img src="assets/img/landing/H_15.jpg" alt="...">
+					  <div class="carousel-caption">
+						<!--h3>Caption Text</h3-->
+					  </div>
+					</div>
+                    <div class="item">
+                      <img src="assets/img/landing/H_16.jpg" alt="...">
+                      <div class="carousel-caption">
+                        <!--h3>Caption Text</h3-->
+                      </div>
+                    </div>
+				</div>
+
+			</div> <!-- End Of Carousel -->
+            <div class="section section-2" id="section2">
+                <div class="container">
+                    <h2 class="header-text text-center">Single platform for your Mobile Analytic needs</h2>
+                    <div class="row row-1">
+                        <p>
+                            Mobile Application Analytics comes with a broad range of feature to get insights of your mobile app usage with a quick integration via the light
+                            SDK thus enabling app owners to define and understand the success of their apps.
+                            The platform can be used to analyze the data over cloud or request for an in-premise deployment.
+                            It provides a mechanism to measure the success of your app and thereby taking business decisions
+                            based on usage data and providing users features they like more and discontinue with low usage features.
+                        </p>
+                    </div>
+                    <div class="row row-2">
+                        <div class="col-md-4 left-col">
+                            <div class="card">
+                                <div class="icon">
+                                    <img src="assets/img/landing/H_1.png" />
+                                </div>
+                                <div class="text">
+                                    <h4><strong>Core Analytics</strong></h4>
+                                    <p>
+                                        Understand the usage patterns acrosss the days, months and get app insights.
+                                        Understand the current active users and run marketing campaigns to run hyper targeted push notifications.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 center-col">
+                            <div class="card">
+                                <div class="icon">
+                                    <img src="assets/img/landing/H_2.png" />
+                                </div>
+                                <div class="text">
+                                    <h4><strong>Device Analytics</strong></h4>
+                                    <p>
+                                        Helps the app owners to get the device insights, user retention patterns,
+                                        uninstall attribution and other engagement levels with a quick integration and onboarding of their app.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 right-col">
+                            <div class="card">
+                                <div class="icon">
+                                    <img src="assets/img/landing/H_3.png" />
+                                </div>
+                                <div class="text">
+                                    <h4><strong>Location Analytics</strong></h4>
+                                    <p>
+                                        Access the regions distribution of the mobile app and analyze the patterns of the usage.
+                                        It helps to identify the low usage regions and target those regions with targeted campaigns for conversions.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr style="border-color:#cccccc" />
+                </div>
+
+            </div>
+            <div class="section section-3" id="section3">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="description">
+                                <h3 class="header-text"><strong>Device Usage Analytics</strong></h3>
+                                <p>
+                                    Device Analytics will help the app owners to understand how the app is being used across various
+                                    Manufacturers, Models, Platforms, Operating Systems etc. With this, the teams can take a business
+                                    decision to test across devices which has the highest user base as opposed to testing it against
+                                    devices having a low market value and usage.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-6 hidden-xs">
+                            <img src="assets/img/landing/H_4.png" />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="section section-4" id="section4">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-7 hidden-xs">
+                            <img src="assets/img/landing/H_5.png" />
+                        </div>
+                        <div class="col-md-4 col-md-offset-1">
+                            <div class="description">
+                                <h3 class="header-text"><strong>Measure App Features</strong></h3>
+                                <p>
+                                    With platforms User Engagement Analysis, App Owners can identify the usage patterns of specific events within the
+                                    mobile app thus enabling app owners to identify features that are being used frequently and the ones that are used less frequently.
+                                    App owners can also compare across events and identify the patterns of cross usage.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="section section-5" id="section5">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="description">
+                                <h3 class="header-text"><strong>Measure Region Distribution</strong></h3>
+                                <p>
+                                    Platform's location analytics gives the insights about the adoption rate of the app across the globe.
+                                    Measure the use onboarding and their engagement levels within the regions to understand the usage pattern.
+                                    App Owners can run campaigns in the regions where the adoption has been low and drive campaigns for successful conversion.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-7 col-md-offset-1 hidden-xs">
+                            <img src="assets/img/landing/H_6.png" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <!--img src="assets/img/landing/H_7.png" style="padding-top:10px;" /-->
+                        <!--p>
+                            &copy;2016 AppEngage
+                            <br />
+                            All Rights Reserved
+                        </p-->
+                    </div>
+                    <!--<div class="col-md-1">
+                    <h4>LOREM IPSUM DOLOR SIT AMET</h4>
+                </div>-->
+                    <div class="col-md-2">
+                        <h5><a href="#">About</a></h5>
+                        <h5><a href="#">Contact</a></h5>
+                        <h5><a href="#">Terms of Service</a></h5>
+                        <h5><a href="#">Privacy Policy</a></h5>
+                    </div>
+                    <div class="col-md-2">
+                        <h5>FOLLOW US</h5>
+                        <img src="assets/img/landing/H_10.png" /><a href="#">Facebook</a>
+                        <br />
+                        <img src="assets/img/landing/H_13.png" /><a href="#">Twitter</a>
+                        <br />
+                        <img src="assets/img/landing/H_12.png" /><a href="#">Instagram</a>
+                        <br />
+                        <img src="assets/img/landing/H_11.png" /><a href="#">RSS</a>
+                        <br />
+                    </div>
+                    <div class="col-md-3">
+                        <h5>SUBSCRIBE TO OUR NEWSLETTER</h5>
+                        <p class="newlettertext">For getting all the market insights and trends across the mobile analytics.</p>
+                        <br />
+                        <div class="input-group col-xs-10">
+                            <input type="text" class="form-control" placeholder="Email">
+                            <span class="input-group-btn">
+                                <button class="btn btn-secondary" type="button"><span class="glyphicon glyphicon-envelope"></span></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--modal LOGIN-->
+
+            <div class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+                        <div>
+                            <input type="text" class="usrname" placeholder="Username" />
+                            <input type="password" class="passwrd" placeholder="Password" />
+                            <button class="btn btn-neutral btn-block" onclick="validateUser()">Submit</button>
+                            <a href="#">Forgot password?</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--modal REGISTRATION-->
+
+            <div class="modal fade" id="modalRegister"  tabindex='-1' role="dialog">
+                <div class="modal-dialog modal-md">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+
+                            <h5 class="modal-title modalRegister"><i class="fa fa-pencil" aria-hidden="true" style="color:#36657c;"></i>&nbsp;Please fill in the below details to Register with Us</h5>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-3 register-part01 active-underline" style="padding-left: 0px; padding-right: 0px; width: 120px;">
+                                    <div class=" col-md-6 num-part" style="width:45px;">
+                                    01
+                                </div>
+                                    <div class="col-md-6 text-part">
+                                        Customer Details
+                                    </div>
+
+                                </div>
+                                <div class="col-md-1">
+                                    <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                                </div>
+                                <div class="col-md-3 register-part02" style="padding-left: 0px; padding-right: 0px; width: 114px;">
+                                    <div class="col-md-6 num-part">
+                                        02
+                                    </div>
+                                    <div class="col-md-6 text-part">
+                                        App Details
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                                </div>
+                                <div class="col-md-3 register-part03" style="padding-left: 0px; padding-right: 0px; width: 152px;">
+                                    <div class="col-md-6 num-part" style="width: 55px;">
+                                        03
+                                    </div>
+                                    <div class="col-md-6 text-part" style="line-height: 40px;">
+                                        Confirmation
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-content" style="padding-top: 20px;">
+                                <div class="tab-pane fade in active" id="tab1">
+                                    <div class="row">
+                                        <div class="col-md-5">
+                                            <input type="text" id="reg-fname" class="form-control" tabindex="1" placeholder="First Name" />
+                                            <input type="text" id="reg-email" class="form-control" tabindex="3" placeholder="E-mail ID" />
+                                            <input type="text" id="reg-uname" class="form-control" tabindex="5" placeholder="User Name" onkeyup="unameAvailability($(this).val())" />
+                                            <span id="uname-check" style="opacity: 0;"><i class="fa"></i><i id="avail-message"></i></span>
+                                        </div>
+                                        <div class="col-md-5 col-md-offset-1">
+                                            <input type="text" id="reg-lname" class="form-control" tabindex="2" placeholder="Last Name" />
+                                            <input type="number" id="reg-phone" class="form-control" tabindex="4" placeholder="Phone" />
+                                            <input type="password" id="reg-pwd" class="form-control" tabindex="6" placeholder="Password" />
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <button class="btn btn-proceed1" onclick="fadeProceed('tab1', 'tab2');">Proceed</button>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="tab2">
+                                    <div class="row">
+                                        <div class="col-md-5">
+                                            <input type="text" id="reg-appname" class="form-control" tabindex="1" placeholder="App Name" />
+                                            <input type="text" id="reg-appdesc" class="form-control" tabindex="2" placeholder="App Description" />
+                                            <div class="input-group">
+                                                <input type="text" id="ref-timeout" tabindex="3" class="form-control" placeholder="App Timeout">
+                                                <div class="input-group-btn">
+                                                    <button type="button" class="btn btn-default"><i class="fa fa-clock-o"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 hidden-xs">
+                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <div class="input-group">
+                                                <input type="text" id="reg-appcat" tabindex="4" class="form-control" placeholder="App Category">
+                                                <div class="input-group-btn">
+                                                    <button type="button" class="btn btn-default"><i class="caret"></i></button>
+                                                </div>
+                                            </div>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="reg-appicon" readonly>
+                                                <label class="input-group-btn">
+                                                    <span class="btn btn-default">
+                                                        <i class="fa fa-upload"></i><input type="file" style="display: none;" accept="image/*" onchange="imageUpload(this);">
+                                                    </span>
+                                                </label>
+                                            </div>
+                                            <div class="input-group">
+                                                <select class="form-control timezone-select" style="border-radius: 4px;"></select>
+                                                <script>
+                                                    $(".timezone-select").timezones();
+                                                </script>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-1 hidden-xs">
+                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                                        </div>
+                                    </div>
+
+                                        <div class="row">
+                                            <button class="btn btn-back" onclick="fadeBack('tab2', 'tab1');">Back</button>
+                                            <button class="btn btn-proceed2" onclick="fadeProceed('tab2', 'tab3');">Proceed</button>
+                                        </div>
+
+
+                                </div>
+                                <div class="tab-pane fade" id="tab3">
+                                    <div class="row">
+                                        <div class="col-md-2 hidden-xs">
+                                            <!--img id="appicon-img" style="height: 60px; width: 60px;"/-->
+                                        </div>
+                                        <div class="col-md-5">
+                                            <p><span class="tab3-boldtext">App Name:</span>&nbsp;&nbsp;<span class="tab3-regtext1"></span></p>
+                                            <p><span class="tab3-boldtext">Description:</span>&nbsp;&nbsp;<span class="tab3-regtext2"></span></p>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <p><span class="tab3-boldtext">App Category:</span>&nbsp;&nbsp;<span class="tab3-regtext3"></span></p>
+                                            <p><span class="tab3-boldtext">App Time Zone:</span>&nbsp;&nbsp;<span class="tab3-regtext4"></span></p>
+                                            <p><span class="tab3-boldtext">App Timeout:</span>&nbsp;&nbsp;<span class="tab3-regtext5"></span></p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <button class="btn btn-back" onclick="fadeBack('tab3', 'tab2');">Back</button>
+                                        <button class="btn btn-confirm">Confirm</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+      </div>
+
+	  <!-- YouTUbe Demo player -->
+<div class="modal fade" tabindex='-1' id="modalDemoPlayer" role="dialog">
+                <div class="modal-dialog modal-md">
+					<!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" id="closebtn">&times;</button>
+                            <h5 class="modal-title modalRegister"><i class="fa" aria-hidden="true" style="color:#36657c;"></i>&nbsp;Mobile Application Analytics</h5>
+                        </div>
+                        <div class="modal-body">
+						<!-- 	<iframe width="560" height="315" src="https://www.youtube.com/embed/Uv9JoGZr3t0" frameborder="0" allowfullscreen></iframe>  -->
+							<iframe width="560" height="315" src="https://www.youtube.com/embed/BZuX0JZUpX8" frameborder="0" allowfullscreen></iframe>
+						</div>
+					</div>
+				</div>
+</div>
+        <div id="floating-anchor">
+            <a href="#section2"><img src="assets\img\landing\Arrow_Down.png" /></a>
+        </div>
+</body>
+</html>

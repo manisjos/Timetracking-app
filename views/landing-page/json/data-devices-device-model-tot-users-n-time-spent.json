@@ -1,0 +1,18 @@
+[
+    {
+        "model":"Samsung Galaxy S3",
+        "users":1,
+        "time":382
+    },
+    {
+        "model":"Apple iPhone 5s",
+        "users":1,
+        "time":52
+    },
+    {
+        "model":"Micromax Canvas",
+        "users":1,
+        "time":56
+    }
+    
+]
