@@ -5,6 +5,10 @@ module.exports = function(app, passport) {
 		res.render('demo.ejs');
 	});
 
+	app.get('/Apple', function(req,res){
+		res.render('Apple.ejs');
+	});
+
 
 	// =====================================
 	// HOME PAGE (with login links) ========
