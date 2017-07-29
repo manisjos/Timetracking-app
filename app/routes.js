@@ -5,6 +5,10 @@ module.exports = function(app, passport) {
 		res.render('demo.ejs');
 	});
 
+	app.get('/linkinpark', function(req,res){
+		res.render('linkinpark.ejs');
+	});
+
 	// app.get('/landing', function(req,res){
 	// 	res.render('landing-page.ejs');
 	// });
